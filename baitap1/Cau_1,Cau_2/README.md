@@ -7,5 +7,5 @@
 + Công nghệ 5G & AI: Mạng 5G giúp ứng dụng di động nhanh hơn, mạnh hơn, kết hợp với AI để cá nhân hóa trải nghiệm người dùng.
 + Xu hướng chuyển đổi số: Nhiều doanh nghiệp đang đầu tư mạnh vào ứng dụng di động để cung cấp dịch vụ tốt hơn.
 + Nền tảng đa dạng: Các công nghệ như Flutter, React Native giúp lập trình viên dễ dàng phát triển ứng dụng chạy trên cả Android & iOS.
-* Vì vậy, em tin rằng lập trình di động sẽ tiếp tục phát triển mạnh và mang lại nhiều cơ hội việc làm.
+=> Vì vậy, em tin rằng lập trình di động sẽ tiếp tục phát triển mạnh và mang lại nhiều cơ hội việc làm.
 
