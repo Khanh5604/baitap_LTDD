@@ -9,13 +9,13 @@ import androidx.appcompat.app.AppCompatActivity
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main) // Hiển thị giao diện MainActivity
+        setContentView(R.layout.activity_main)
 
-        // Chuyển sang OpenActivity sau 3 giây
+
         Handler(Looper.getMainLooper()).postDelayed({
             val intent = Intent(this, OpenActivity::class.java)
             startActivity(intent)
             finish() // Đóng MainActivity
-        }, 3000)
+        }, 2000)
     }
 }

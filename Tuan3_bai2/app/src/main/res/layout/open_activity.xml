@@ -18,15 +18,15 @@
 
 
     <Button
-        android:id="@+id/button"
-        android:layout_width="331dp"
-        android:layout_height="65dp"
-        android:text="Next"
+        android:id="@+id/button3"
+        android:layout_width="360dp"
+        android:layout_height="58dp"
         android:layout_marginBottom="25dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:text="Next"
+        android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintVertical_bias="0.85" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
 
     <TextView

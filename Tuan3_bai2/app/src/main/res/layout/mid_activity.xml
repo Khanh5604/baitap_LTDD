@@ -9,7 +9,7 @@
         android:id="@+id/imageButton2"
         style="@android:style/Widget.Holo.ImageButton"
         android:layout_width="55dp"
-        android:layout_height="46dp"
+        android:layout_height="58dp"
         android:layout_marginStart="32dp"
         android:layout_marginBottom="25dp"
         android:background="@drawable/circle_button"
@@ -24,7 +24,7 @@
     <Button
         android:id="@+id/button3"
         android:layout_width="283dp"
-        android:layout_height="50dp"
+        android:layout_height="58dp"
         android:layout_marginBottom="25dp"
         android:text="Next"
         android:textStyle="bold"
