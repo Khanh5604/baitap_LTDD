@@ -8,15 +8,12 @@ import androidx.appcompat.app.AppCompatActivity
 class OpenActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.open_activity) // Giao diện OpenActivity
+        setContentView(R.layout.open_activity)
 
-        // Lấy nút Next bằng ID
         val nextButton: Button = findViewById(R.id.button3)
-
-        // Bắt sự kiện khi nhấn Next
         nextButton.setOnClickListener {
             val intent = Intent(this, MidActivity::class.java)
-            startActivity(intent) // Chuyển sang MidActivity
+            startActivity(intent)
         }
     }
 }

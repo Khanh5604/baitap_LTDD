@@ -13,9 +13,6 @@ class MidActivity : AppCompatActivity() {
 
         val nextButton: Button = findViewById(R.id.button3)
 
-
-
-
         nextButton.setOnClickListener {
             val intent = Intent(this, FinalActivity::class.java)
             startActivity(intent)
