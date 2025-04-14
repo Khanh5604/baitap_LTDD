@@ -35,7 +35,7 @@ class MainActivity : ComponentActivity() {
                             LoginScreen(navController)
                         }
                         composable("profile") {
-                            ProfileScreen(navController) // ✅ Truyền đúng tham số
+                            ProfileScreen(navController)
                         }
                     }
                 }

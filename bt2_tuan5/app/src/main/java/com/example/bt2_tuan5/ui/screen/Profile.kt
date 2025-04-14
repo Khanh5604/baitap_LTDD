@@ -16,31 +16,47 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
-import com.google.firebase.auth.FirebaseAuth
 import com.example.bt2_tuan5.R
+import com.example.bt2_tuan5.viewmodel.ProfileViewModel
+import java.text.SimpleDateFormat
+import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProfileScreen(navController: NavController) {
-    val firebaseAuth = remember { FirebaseAuth.getInstance() }
-    val user = firebaseAuth.currentUser
+fun ProfileScreen(navController: NavController, viewModel: ProfileViewModel = viewModel()) {
+    val userProfile by viewModel.userProfile.collectAsState()
+    val navigateToLogin by viewModel.navigateToLogin.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
+    val errorMessage by viewModel.errorMessage.collectAsState()
+    val successMessage by viewModel.successMessage.collectAsState()
 
-    LaunchedEffect(user) {
-        if (user == null) {
+    var showDatePicker by remember { mutableStateOf(false) }
+    val datePickerState = rememberDatePickerState()
+
+    LaunchedEffect(navigateToLogin) {
+        if (navigateToLogin) {
             navController.navigate("login") {
                 popUpTo("profile") { inclusive = true }
                 launchSingleTop = true
             }
+            viewModel.resetNavigation()
         }
     }
 
-    if (user == null) return
+    if (isLoading) {
+        Box(
+            modifier = Modifier.fillMaxSize().background(Color.White),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator(color = Color.Blue)
+        }
+        return
+    }
 
-    val userName = user.displayName ?: "Unknown"
-    val userEmail = user.email ?: "Unknown"
-    val userPhoto = user.photoUrl?.toString()
+    val profile = userProfile ?: return
 
     Column(
         modifier = Modifier
@@ -49,36 +65,36 @@ fun ProfileScreen(navController: NavController) {
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Nút Back
-        IconButton(
-            onClick = { navController.popBackStack() },
-            modifier = Modifier.align(Alignment.Start)
-        ) {
-            Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = Color.Blue)
-        }
 
-        Text(text = "Profile", fontSize = 22.sp, color = Color.Blue)
+
+        Text(text = "Hồ sơ", fontSize = 22.sp, color = Color.Blue)
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Ảnh đại diện
+        // Hiển thị thông báo lỗi hoặc thành công
+        errorMessage?.let {
+            Text(text = it, color = Color.Red, fontSize = 14.sp, modifier = Modifier.padding(bottom = 8.dp))
+        }
+        successMessage?.let {
+            Text(text = it, color = Color.Green, fontSize = 14.sp, modifier = Modifier.padding(bottom = 8.dp))
+            LaunchedEffect(it) {
+                kotlinx.coroutines.delay(2000) // Hiển thị 2 giây
+                viewModel.clearMessages()
+            }
+        }
+
         Box(contentAlignment = Alignment.BottomEnd) {
             AsyncImage(
-                model = userPhoto,
-                contentDescription = "Profile Picture",
-                modifier = Modifier
-                    .size(100.dp)
-                    .clip(CircleShape)
-                    .background(Color.Gray)
+                model = profile.photoUrl,
+                contentDescription = "Ảnh đại diện",
+                modifier = Modifier.size(100.dp).clip(CircleShape).background(Color.Gray)
             )
             IconButton(
-                onClick = { /* Chức năng thay đổi ảnh */ },
-                modifier = Modifier
-                    .size(24.dp)
-                    .background(Color.White, shape = CircleShape)
+                onClick = { /* TODO: Triển khai thay đổi ảnh */ },
+                modifier = Modifier.size(24.dp).background(Color.White, shape = CircleShape)
             ) {
                 Icon(
                     painter = painterResource(id = R.drawable.vector),
-                    contentDescription = "Change Profile Picture",
+                    contentDescription = "Thay đổi ảnh đại diện",
                     tint = Color.Blue
                 )
             }
@@ -87,9 +103,9 @@ fun ProfileScreen(navController: NavController) {
         Spacer(modifier = Modifier.height(16.dp))
 
         Column(modifier = Modifier.fillMaxWidth()) {
-            Text("Name", fontSize = 16.sp)
+            Text("Tên", fontSize = 16.sp)
             OutlinedTextField(
-                value = userName,
+                value = profile.name,
                 onValueChange = {},
                 modifier = Modifier.fillMaxWidth(),
                 readOnly = true
@@ -99,7 +115,7 @@ fun ProfileScreen(navController: NavController) {
 
             Text("Email", fontSize = 16.sp)
             OutlinedTextField(
-                value = userEmail,
+                value = profile.email,
                 onValueChange = {},
                 modifier = Modifier.fillMaxWidth(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
@@ -108,34 +124,64 @@ fun ProfileScreen(navController: NavController) {
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            Text("Date of Birth", fontSize = 16.sp)
+            Text("Ngày sinh", fontSize = 16.sp)
             OutlinedTextField(
-                value = "23/05/1995", // Giá trị tĩnh, có thể thay đổi khi lấy từ DB
+                value = profile.dateOfBirth,
                 onValueChange = {},
                 modifier = Modifier.fillMaxWidth(),
                 readOnly = true,
                 trailingIcon = {
-                    Icon(Icons.Default.ArrowBack, contentDescription = "Dropdown")
+                    IconButton(onClick = { showDatePicker = true }) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Chọn ngày")
+                    }
                 }
             )
         }
 
+        Spacer(modifier = Modifier.height(16.dp))
+        Button(
+            onClick = { viewModel.saveCurrentDateOfBirth() },
+            modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.buttonColors(containerColor = Color.Blue)
+        ) {
+            Text("Xác nhận lưu", color = Color.White)
+        }
         Spacer(modifier = Modifier.weight(1f))
 
         Button(
-            onClick = {
-                firebaseAuth.signOut()
-                navController.navigate("login") {
-                    popUpTo("profile") { inclusive = true }
-                    launchSingleTop = true
-                }
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(48.dp),
+            onClick = { viewModel.signOut() },
+            modifier = Modifier.fillMaxWidth().height(48.dp),
             colors = ButtonDefaults.buttonColors(containerColor = Color.Blue)
         ) {
-            Text("Back", color = Color.White, fontSize = 16.sp)
+            Text("Đăng xuất", color = Color.White, fontSize = 16.sp)
+        }
+    }
+
+    if (showDatePicker) {
+        DatePickerDialog(
+            onDismissRequest = { showDatePicker = false },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        val selectedDate = datePickerState.selectedDateMillis
+                        if (selectedDate != null) {
+                            val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+                            val dateString = dateFormat.format(Date(selectedDate))
+                            viewModel.updateDateOfBirth(dateString)
+                        }
+                        showDatePicker = false
+                    }
+                ) {
+                    Text("Xác nhận")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDatePicker = false }) {
+                    Text("Hủy")
+                }
+            }
+        ) {
+            DatePicker(state = datePickerState)
         }
     }
 }

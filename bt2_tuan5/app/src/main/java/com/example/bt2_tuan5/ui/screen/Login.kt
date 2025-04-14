@@ -1,10 +1,7 @@
 package com.example.bt2_tuan5.ui.screen
 
 import android.app.Activity
-import android.content.Intent
-import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
@@ -19,62 +16,35 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.bt2_tuan5.R
-import com.google.android.gms.auth.api.identity.BeginSignInRequest
+import com.example.bt2_tuan5.viewmodel.LoginViewModel
 import com.google.android.gms.auth.api.identity.Identity
-import com.google.android.gms.auth.api.identity.SignInClient
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.GoogleAuthProvider
 
 @Composable
-fun LoginScreen(navController: NavController) {
+fun LoginScreen(navController: NavController, viewModel: LoginViewModel = viewModel()) {
     val context = LocalContext.current
     val activity = context as Activity
-    val firebaseAuth = FirebaseAuth.getInstance()
-    val user = firebaseAuth.currentUser
+    val oneTapClient = Identity.getSignInClient(activity)
+    val navigateToProfile by viewModel.navigateToProfile.collectAsState()
 
-    LaunchedEffect(user) {
-        if (user != null) {
+    LaunchedEffect(navigateToProfile) {
+        if (navigateToProfile) {
             navController.navigate("profile") {
                 popUpTo("login") { inclusive = true }
             }
+            viewModel.resetNavigation()
         }
     }
 
-    val oneTapClient: SignInClient = Identity.getSignInClient(activity)
-
-    val signInRequest = BeginSignInRequest.builder()
-        .setGoogleIdTokenRequestOptions(
-            BeginSignInRequest.GoogleIdTokenRequestOptions.builder()
-                .setSupported(true)
-                .setServerClientId(activity.getString(R.string.default_web_client_id))
-                .setFilterByAuthorizedAccounts(false)
-                .build()
-        )
-        .build()
-
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
-            val data: Intent? = result.data
-            val credential = oneTapClient.getSignInCredentialFromIntent(data)
-            val idToken = credential.googleIdToken
-
-            if (idToken != null) {
-                val firebaseCredential = GoogleAuthProvider.getCredential(idToken, null)
-                firebaseAuth.signInWithCredential(firebaseCredential)
-                    .addOnCompleteListener { task ->
-                        if (task.isSuccessful) {
-                            navController.navigate("profile") {
-                                popUpTo("login") { inclusive = true }
-                            }
-                        } else {
-                            Log.e("LoginScreen", "Đăng nhập thất bại", task.exception)
-                        }
-                    }
-            }
+            viewModel.handleSignInResult(result.data, oneTapClient)
         }
     }
 
@@ -89,7 +59,7 @@ fun LoginScreen(navController: NavController) {
 
         Image(
             painter = painterResource(id = R.drawable.anhuth),
-            contentDescription = "UTH Logo",
+            contentDescription = "Logo UTH",
             modifier = Modifier.size(150.dp)
         )
 
@@ -103,7 +73,7 @@ fun LoginScreen(navController: NavController) {
         )
 
         Text(
-            text = "A simple and efficient to-do app",
+            text = "Ứng dụng quản lý công việc đơn giản và hiệu quả",
             fontSize = 14.sp,
             color = Color.Gray
         )
@@ -113,14 +83,14 @@ fun LoginScreen(navController: NavController) {
         Spacer(modifier = Modifier.weight(1f))
 
         Text(
-            text = "Welcome",
+            text = "Chào mừng",
             fontSize = 20.sp,
             fontWeight = FontWeight.SemiBold,
             color = Color.Black
         )
 
         Text(
-            text = "Ready to explore? Log in to get started.",
+            text = "Sẵn sàng khám phá? Đăng nhập để bắt đầu.",
             fontSize = 14.sp,
             color = Color.Gray
         )
@@ -128,16 +98,7 @@ fun LoginScreen(navController: NavController) {
         Spacer(modifier = Modifier.height(32.dp))
 
         Button(
-            onClick = {
-                oneTapClient.beginSignIn(signInRequest)
-                    .addOnSuccessListener(activity) { result ->
-                        val intentSenderRequest = IntentSenderRequest.Builder(result.pendingIntent.intentSender).build()
-                        launcher.launch(intentSenderRequest)
-                    }
-                    .addOnFailureListener { e ->
-                        Log.e("LoginScreen", "Google Sign-In failed", e)
-                    }
-            },
+            onClick = { viewModel.signInWithGoogle(activity, oneTapClient, launcher::launch) },
             modifier = Modifier
                 .fillMaxWidth(0.8f)
                 .height(50.dp),
@@ -147,12 +108,12 @@ fun LoginScreen(navController: NavController) {
         ) {
             Image(
                 painter = painterResource(id = R.drawable.gg),
-                contentDescription = "Google Icon",
+                contentDescription = "Biểu tượng Google",
                 modifier = Modifier.size(24.dp)
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text(
-                text = "SIGN IN WITH GOOGLE",
+                text = "ĐĂNG NHẬP BẰNG GOOGLE",
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium,
                 color = Color.Black

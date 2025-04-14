@@ -2,15 +2,14 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
-    id("com.google.gms.google-services")
 }
 
 android {
-    namespace = "com.example.bt2_tuan5"
+    namespace = "com.example.baitapth_tuan7"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.example.bt2_tuan5"
+        applicationId = "com.example.baitapth_tuan7"
         minSdk = 24
         targetSdk = 35
         versionCode = 1
@@ -42,14 +41,19 @@ android {
 
 dependencies {
 
-    implementation(platform("com.google.firebase:firebase-bom:33.11.0"))
-    implementation("com.google.firebase:firebase-analytics")
+    implementation("androidx.activity:activity-compose:1.7.2")
+    implementation("androidx.compose.ui:ui:1.5.0")
+    implementation("androidx.compose.material3:material3:1.1.0")
+    implementation("androidx.compose.ui:ui-tooling-preview:1.5.0")
 
-    implementation ("com.google.firebase:firebase-auth:22.3.1")
-    implementation ("com.google.android.gms:play-services-auth:20.7.0")
+    // ViewModel cho Compose
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1")
 
-    implementation("io.coil-kt:coil-compose:2.5.0")
+    // Lifecycle Runtime
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")
 
+    // DataStore (nếu chưa thêm)
+    implementation("androidx.datastore:datastore-preferences:1.0.0")
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -59,10 +63,6 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
-    implementation(libs.androidx.navigation.common.android)
-    implementation(libs.androidx.navigation.compose)
-    implementation(libs.androidx.foundation.android)
-    implementation(libs.firebase.firestore.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
